@@ -1,0 +1,137 @@
+<!DOCTYPE html>  <html> <head>   <title>tcp-chat.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               tcp-chat.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h1>Hour of Node 1</h1>
+
+<h2>A TCP Chat Server</h2>
+
+<p>Our objectives in this hour were to:</p>
+
+<ul>
+<li>Make a node "Hello, world"</li>
+<li>Crash node</li>
+<li>Make a TCP chat server</li>
+</ul>
+
+<h3>Includes</h3>
+
+<p>The node <code>require</code> function is like <code>include</code> or <code>import</code>. It looks in the
+system's standard paths for modules you specify. You can also use relative
+paths, as in <code>require("./foo/bar")</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">net</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;net&#39;</span><span class="p">);</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>Variables</h3>
+
+<p>So as not to stomp on the global namespace, always use <code>var</code> when declaring
+variables, even at the top level of a module, in case someone wants to
+include that module in another application.</p>
+
+<p>JavaScript variables have <em>function</em> scope.  Not block scope.  Don't forget
+that.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">clients</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="kd">var</span> <span class="nx">names</span> <span class="o">=</span> <span class="p">{};</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3>Functions</h3>
+
+<p>Functions can be declared anywhere in your program, and used before they are
+declared.  Variables on the other hand can only be used after they have been
+declared.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">function</span> <span class="nx">tellAll</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">clients</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">clients</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">write</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h3>A TCP Server</h3>
+
+<p>See the <a href="http://nodejs.org">node.js documentation</a> for any questions.</p>
+
+<p>Here, we create a socket server, which uses TCP4 by default.  We provide a
+function as an argument to the <code>createServer()</code> method.  This is a vary
+common pattern in node.  The function is a callback that will be invoked
+when <code>createServer</code> has done its work.  In this case, <code>createServer</code> passes
+the new <code>socket</code> object as an argument to our callback. </p>
+
+<p>Two things to note:</p>
+
+<ol>
+<li>This is asynchronous.  We don't know when our callback will be invoked.</li>
+<li>Our logic is broken up across callbacks.</li>
+</ol>
+
+<p>This is the main thing you have to get used to when programming node.  In an
+imperative language (e.g., Python), you would say something like this:</p>
+
+<pre><code>server = createServer()
+# now do something with server.socket ...
+</code></pre>
+
+<p>Not so in node.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">net</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">socket</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h4>Handlers</h4>
+
+<p>The <code>socket</code> object responds to events.  You can register callbacks that
+will be invoked for events like "connect", "data", "end", etc.  Use the
+<code>socket.on</code> method to do this.</p>
+
+<p>The connect handler will be triggered when someone conects to our server.
+Here we tell everyone in our room that someone has joined, and then adds the
+connected <code>socket</code> to the list of people in our room.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">]</span> <span class="o">===</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">]</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nx">tellAll</span><span class="p">(</span><span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; has joined the party\n&#39;</span><span class="p">);</span>
+    <span class="nx">clients</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">socket</span><span class="p">);</span>
+  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Our data handler will be called when we receive data from a socket.  By
+default, we just broadcast the data to everyone.  But if the data begins
+with a '/', we interpret it as a special command. </p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p><code>data</code> contains a <code>buffer</code> object.  If you <code>console.log()</code> it, you'll see a
+representation of a binary string.  So we use its <code>toString()</code> method to
+convert it to text.  </p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">match</span><span class="p">(</span><span class="sr">/^\//</span><span class="p">))</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>You might expect the first match of a regex to be indexed as item <code>[0]</code>, but
+no.  Play with regexes in the <code>node</code> shell and see how they work.  I've
+shown two ways to work with regexes here: <code>exec</code>ing a regex, and <code>match</code>ing
+a string.</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="kd">var</span> <span class="nx">match</span> <span class="o">=</span> <span class="sr">/\/(\w+)\s+(.*)/</span><span class="p">.</span><span class="nx">exec</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">toString</span><span class="p">());</span>
+      <span class="kd">var</span> <span class="nx">cmd</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+      <span class="kd">var</span> <span class="nx">arg</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+
+      <span class="k">switch</span> <span class="p">(</span><span class="nx">cmd</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>You can change your nick by typing <code>/nick newname</code>.  When you do this, the
+server will record the new name associated with your address.  We tell the
+room when someone changes their name.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">case</span> <span class="s2">&quot;nick&quot;</span><span class="o">:</span>
+          <span class="kd">var</span> <span class="nx">oldName</span> <span class="o">=</span> <span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">];</span>
+          <span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">]</span> <span class="o">=</span> <span class="nx">arg</span><span class="p">;</span>
+          <span class="nx">tellAll</span><span class="p">(</span><span class="nx">oldName</span> <span class="o">+</span> <span class="s1">&#39; is now &#39;</span> <span class="o">+</span> <span class="nx">arg</span><span class="p">);</span>
+          <span class="k">break</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>If you type <code>/quit</code>, we'll close the connection.  Note that we don't tell
+everyone you've left here, because we have an "end" handler below that will
+do this for us when the connection ends for any reason.  For instance, the
+client might just disconnect without using the <code>/quit</code> command.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">case</span> <span class="s2">&quot;quit&quot;</span><span class="o">:</span>
+          <span class="nx">socket</span><span class="p">.</span><span class="nx">end</span><span class="p">();</span>
+          <span class="k">break</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>If we didn't understand the command, we send a helpful private message to
+the sender.</p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="k">default</span><span class="o">:</span>
+          <span class="nx">socket</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;wtf?&quot;</span><span class="p">);</span>
+      <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Our default action for messages is to broadcast them to the whole channel.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">tellAll</span><span class="p">(</span><span class="nx">names</span><span class="p">[</span><span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="nx">data</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Our end handler removes the socket from the list of connected clients and
+tells everyone the person has left.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">addr</span> <span class="o">=</span> <span class="nx">socket</span><span class="p">.</span><span class="nx">remoteAddress</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="nx">clients</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">socket</span><span class="p">);</span>
+    <span class="nx">clients</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nx">tellAll</span><span class="p">(</span><span class="nx">names</span><span class="p">[</span><span class="nx">addr</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="nx">addr</span> <span class="o">+</span> <span class="s1">&#39;) has left the building\n&#39;</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <h3>Exposing as a Module</h3>
+
+<p>When running in <code>node</code>, your script has access to the special global
+variable <code>exports</code>.  <code>exports</code> is the objects that is returned when someone
+<code>require()</code>s your module.</p>
+
+<p>Just to be safe, we check whether <code>exports</code> exists.  Undefined things always
+return a type of <code>undefined</code>.  Be aware that this is different from the
+(defined) value of <code>null</code>.</p>
+
+<p>Now someone can put your chat server in their program like so:</p>
+
+<pre><code> var server = require("path/to/yourchat").server;
+ server.listen(8000);
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">exports</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">exports</span><span class="p">.</span><span class="nx">server</span> <span class="o">=</span> <span class="nx">server</span><span class="p">;</span>
+<span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <h3>Running A Script</h3>
+
+<p>Testing for <code>! module.parent</code> is like testing for <code>__name__ == '__main__'</code>
+in Python.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">module</span><span class="p">.</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>If invoked as a shell script, listen on localhost on port 8000.
+This will run until you interrupt it.</p>
+
+<p>If you don't like how the port and address are hard-wired here, your
+homework is to use a node command-line option parser or a config file to set
+these values.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;listening on &quot;</span> 
+                <span class="o">+</span> <span class="nx">server</span><span class="p">.</span><span class="nx">address</span><span class="p">().</span><span class="nx">address</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> 
+                <span class="o">+</span> <span class="nx">server</span><span class="p">.</span><span class="nx">address</span><span class="p">().</span><span class="nx">port</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
