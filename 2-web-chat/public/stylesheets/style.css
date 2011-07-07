@@ -1,0 +1,28 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+span.from {
+  font-weight: bold;
+  minimum-width: 14em;
+}
+
+#chat {
+  position: fixed;
+  bottom: 2em;
+  top: 1em;
+  width: 90%;
+  overflow: auto;
+}
+
+#input {
+  position: fixed;
+  bottom: 1em;
+  height: 2em;
+}
+
