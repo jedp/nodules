@@ -1,5 +1,35 @@
+// Hour of Node 2
+// ==============
+//
+// A Real-Time Web Chat Server
+// ---------------------------
+//
+// To set up for this application, do the following:
+//
+// - Create a new directory for your app and cd into it
+// 
+// Now run these commands:
+// 
+// - `npm install express`
+// - `npm install jade`
+// - `npm install socket.io`
+// - `express` 
+//
+// The last command will set up your web application's files and directories.
+//
+// ### Includes ###
+//
+// In our TCP chat server, we used the `net` module to build our servers.
+// In this example, we are going to use two commonly-used modules.
+//
+// `express` is the most widely-used web application framework for Node.JS.
+// `socket.io` enables real-time communication between clients and server.
+// It is the basis of other real-time/rpc libraries (e.g., `now.js`).
+
 var express = require('express');
 var io = require('socket.io');
+
+// 
 
 var app = module.exports = express.createServer();
 
