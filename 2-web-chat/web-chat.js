@@ -23,7 +23,7 @@
 // In this example, we are going to use two commonly-used modules.
 //
 // `express` is the most widely-used web application framework for Node.JS.
-// `socket.io` enables real-time communication between clients and server.
+// [socket.io](http://socket.io) enables real-time communication between clients and server.
 // It is the basis of other real-time/rpc libraries (e.g., `now.js`).
 
 var express = require('express');
