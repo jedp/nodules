@@ -8,15 +8,17 @@ html
   body
   
     //- Textarea for the user to submit a new message
-    form(onsubmit='send(); return false;')
+    form(id='form', onsubmit='send(); return false;')
       textarea(id='input', rows='3', cols='60')
       input(type='submit', value='Send')
 
-    //- Button to list number of new messages 
-    #pending(onclick='showPending(); return false;')
+    #content
 
-    //- Stack of messages we're reading
-    #messages 
+      //- Button to list number of new messages 
+      #pending(onclick='showPending(); return false;')
+
+      //- Stack of messages we're reading
+      #messages 
 
     script
       var socket = io.connect();
