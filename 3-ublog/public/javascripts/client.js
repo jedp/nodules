@@ -31,7 +31,7 @@ function send() {
 
 // Add a message to the list of messages that can be displayed.
 function pend(data) {
-  pending.unshift(data);
+  pending.push(data);
   var el = document.getElementById('pending');
   var info = pending.length + 'new message' + ((pending.length > 1) ? 's' : ''); 
   el.innerHTML = info;
