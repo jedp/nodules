@@ -1,0 +1,23 @@
+!!!5
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='/socket.io/socket.io.js')
+    script(src='/javascripts/client.js')
+  body
+  
+    //- Textarea for the user to submit a new message
+    form(onsubmit='send(); return false;')
+      textarea(id='input', rows='3', cols='60')
+      input(type='submit', value='Send')
+
+    //- Button to list number of new messages 
+    #pending(onclick='showPending(); return false;')
+
+    //- Stack of messages we're reading
+    #messages 
+
+    script
+      var socket = io.connect();
+      socket.json.send({join: "#{title}"});
