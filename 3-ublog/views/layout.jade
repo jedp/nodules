@@ -6,19 +6,24 @@ html
     script(src='/socket.io/socket.io.js')
     script(src='/javascripts/client.js')
   body
-  
-    //- Textarea for the user to submit a new message
-    form(id='form', onsubmit='send(); return false;')
-      textarea(id='input', rows='3', cols='60')
-      input(type='submit', value='Send')
+
+    #header
+      //- Search 
+      form(id='search-form', onsubmit='search(); return false;')
+        input(id='query', type='text', size='60')
 
     #content
+      //- Textarea for the user to submit a new message
+      form(id='message-form', onsubmit='send(); return false;')
+        textarea(id='input', rows='3', cols='60')
+        input(type='submit', value='Send')
 
-      //- Button to list number of new messages 
-      #pending(onclick='showPending(); return false;')
+      #message-stack
+        //- Button to list number of new messages 
+        #pending(onclick='showPending(); return false;')
 
-      //- Stack of messages we're reading
-      #messages 
+        //- Stack of messages we're reading
+        #messages 
 
     script
       var socket = io.connect();
