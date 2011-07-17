@@ -3,12 +3,15 @@
 
 var socket = io.connect();
 var pending = [];
+var filter = null;
 
 socket.on('message', function(data) {
 
   // When we connect, the server will send us a buffer full of recent messages.
   // Display these.
   if ('buffer' in data) {
+    var messages = document.getElementById('messages');
+    messages.innerHTML = '';
     for (var i in data.buffer) {
       show(data.buffer[i]);
     }
@@ -22,15 +25,30 @@ socket.on('message', function(data) {
   }
 });
 
-// Send a new message
+// Send a new message.
 function send() {
   var input = document.getElementById('input');
   socket.json.send({'message': input.value});
   input.value = '';
 }
 
+// Search and filter subsequent messages by the search query.
+function search() {
+  var input = document.getElementById('query');
+  if (input.value) {
+    filter = new RegExp(input.value, 'gi');
+  } else {
+    filter = null;
+  }
+  socket.json.send({'search': input.value});
+}
+
 // Add a message to the list of messages that can be displayed.
 function pend(data) {
+  if (filter && !data.message.match(filter)) {
+    return;
+  }
+
   pending.push(data);
   var el = document.getElementById('pending');
   var info = pending.length + 'new message' + ((pending.length > 1) ? 's' : ''); 
