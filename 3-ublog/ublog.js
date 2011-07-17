@@ -55,7 +55,7 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('message', function(data) {
 
-    // when someone joins, send the last 50 messages.
+    // When someone joins, send the last 50 messages.
     if ('join' in data) {
       models.Message
         .find()
@@ -79,8 +79,21 @@ io.sockets.on('connection', function(socket) {
       socket.broadcast.json.send(message);
       socket.json.send(message);
     }
+
+    // Search for the 50 most recent messages matching the query.
+    else if ('search' in data) {
+      var query = new RegExp(data.search, 'gi');
+      models.Message
+        .find({'message': query})
+        .sort('$natural', 'ascending')
+        .limit(50)
+        .execFind(function(err, messages) {
+          socket.json.send({buffer: messages});
+      });
+    }
   });
 
   socket.on('disconnect', function() {
   });
 });
+
