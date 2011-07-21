@@ -9,10 +9,17 @@ function connect(app) {
   var io = socket_io.listen(app);
 
   io.sockets.on('connection', function(socket) {
+
+    // A username for this socket
+    var username;
+
     socket.on('message', function(data) {
 
       // When someone joins, send the last 50 messages.
       if ('join' in data) {
+        console.log("join");
+        console.log(data);
+        username = data.join;
         models.Message
           .find()
           .sort('$natural', 'ascending')
@@ -27,7 +34,7 @@ function connect(app) {
       // When somebody sends a message, save it and broadcast it.
       else if ('message' in data) {
         var message = new models.Message({
-          username: 'foo',
+          username: username,
           message: data.message,
           date: new Date()
         });
