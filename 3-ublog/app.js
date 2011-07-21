@@ -7,8 +7,7 @@
 // -------
 
 var express = require('express');
-var socket_io = require('socket.io');
-var models = require('./models');
+var ublog = require('./ublog');
 
 var app = module.exports = express.createServer();
 
@@ -32,68 +31,29 @@ app.configure('production', function(){
 
 // Routes
 // ------
-//
-// Right now we have only one route, the feed.  This makes me think we don't
-// really want to use express for this after all.
+
+ublog.connect(app);
 
 app.get('/', function(req, res){
-  res.render('feed', {
-    title: 'feed'
-  });
+  res.render('feed');
 });
+
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.post('/login', function(req, res) {
+  console.dir(req);
+  res.send(200);
+});
+
+app.get('/logout', function(req, res) {
+  res.render('logout');
+});
+
 
 if (!module.parent) {
   app.listen(3000);
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 }
-
-// Socket.IO 
-// ---------
-
-var io = socket_io.listen(app);
-io.sockets.on('connection', function(socket) {
-
-  socket.on('message', function(data) {
-
-    // When someone joins, send the last 50 messages.
-    if ('join' in data) {
-      models.Message
-        .find()
-        .sort('$natural', 'ascending')
-        .limit(50)
-        .execFind(function(err, messages) {
-          if (!err) {
-            socket.json.send({buffer: messages});
-          }
-      });
-    }
-
-    // When somebody sends a message, save it and broadcast it.
-    else if ('message' in data) {
-      var message = new models.Message({
-        username: 'foo',
-        message: data.message,
-        date: new Date()
-      });
-      message.save();
-      socket.broadcast.json.send(message);
-      socket.json.send(message);
-    }
-
-    // Search for the 50 most recent messages matching the query.
-    else if ('search' in data) {
-      var query = new RegExp(data.search, 'gi');
-      models.Message
-        .find({'message': query})
-        .sort('$natural', 'ascending')
-        .limit(50)
-        .execFind(function(err, messages) {
-          socket.json.send({buffer: messages});
-      });
-    }
-  });
-
-  socket.on('disconnect', function() {
-  });
-});
 
