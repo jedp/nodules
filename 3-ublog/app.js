@@ -59,6 +59,7 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
+  // Put your authentication tests here
   req.session.auth = true;
   req.session.username = req.body.username;
   res.redirect('/');
