@@ -75,18 +75,30 @@ body {
   z-index: 1;
 }
 
-#search-form {
+#search form div,
+#search form input {
+  padding: 8px;
+  font-size: 1.2em;
 }
 
-#search-form input {
-  font-size: 1.2em;
-  padding: 8px;
+#query {
   width: 30ex;
 }
 
-#message-form { 
-  height: 6em;
+#message-form {
   width: 60ex;
+  margin-bottom: 10px;
+}
+
+#message-form input {
+  font-size: 1.2em;
+}
+
+#message-form textarea { 
+  font-size: 1.2em;
+  padding: 8px;
+  height: 4em;
+  width: 100%;
 }
 
 #content {
