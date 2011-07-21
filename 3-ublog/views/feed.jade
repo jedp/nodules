@@ -1,1 +1,23 @@
-//- This is deliberately empty
+#header
+  //- Search 
+  form(id='search-form', onsubmit='search(); return false;')
+    input(id='query', type='text', size='60')
+
+#content
+  //- Textarea for the user to submit a new message
+  form(id='message-form', onsubmit='send(); return false;')
+    textarea(id='input', rows='3', cols='60')
+    input(type='submit', value='Send')
+
+  #message-stack
+    //- Button to list number of new messages 
+    #pending(onclick='showPending(); return false;')
+
+    //- Stack of messages we're reading
+    #messages 
+
+script(src='/socket.io/socket.io.js')
+script(src='/javascripts/client.js')
+script
+  var socket = io.connect();
+  socket.json.send({join: "#{title}"});
