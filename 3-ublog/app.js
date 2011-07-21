@@ -7,7 +7,6 @@
 // -------
 
 var express = require('express');
-var auth = require('./auth');
 var ublog = require('./ublog');
 
 var app = module.exports = express.createServer();
