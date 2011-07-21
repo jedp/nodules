@@ -7,6 +7,7 @@
 // -------
 
 var express = require('express');
+var auth = require('./auth');
 var ublog = require('./ublog');
 
 var app = module.exports = express.createServer();
@@ -17,8 +18,18 @@ var app = module.exports = express.createServer();
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
-  app.use(app.router);
+
+  // bodyParser enables us to retrieve POST data, which
+  // we will need for our login form
+  app.use(express.bodyParser());
+
+  // User session management to keep track of whether a 
+  // client is logged in or not.
+  app.use(express.cookieParser());
+  app.use(express.session({'secret': "Attack at dawn!"}));
+
   app.use(express.static(__dirname + '/public'));
+  app.use(app.router);
 });
 
 app.configure('development', function(){
@@ -35,7 +46,13 @@ app.configure('production', function(){
 ublog.connect(app);
 
 app.get('/', function(req, res){
-  res.render('feed');
+  if (req.session.auth) {
+    res.render('feed', {
+      username: req.session.username
+    });
+  } else {
+    res.render('login');
+  }
 });
 
 app.get('/login', function(req, res) {
@@ -43,14 +60,15 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-  console.dir(req);
-  res.send(200);
+  req.session.auth = true;
+  req.session.username = req.body.username;
+  res.redirect('/');
 });
 
 app.get('/logout', function(req, res) {
+  req.session.destroy();
   res.render('logout');
 });
-
 
 if (!module.parent) {
   app.listen(3000);
