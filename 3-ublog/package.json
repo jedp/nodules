@@ -1,9 +1,13 @@
 {
-    "name": "application-name"
-  , "version": "0.0.1"
-  , "private": true
+    "name": "ublog"
+  , "version": "0.1.0"
+  , "author": "Jed Parsons <jed@jedparsons.com>"
+  , "description": "A Node.JS tutorial"
+
   , "dependencies": {
       "express": "2.4.1"
     , "jade": ">= 0.0.1"
+    , "socket.io": ">= 0.7"
+    , "mongoose": ">= 1.0.0"
   }
 }
