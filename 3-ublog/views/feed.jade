@@ -1,12 +1,15 @@
 #header
   //- Search 
-  form(id='search-form', onsubmit='search(); return false;')
-    input(id='query', type='text', size='60')
+  #search
+    form(id='search-form', onsubmit='search(); return false;')
+      div Search:
+        input(id='query', type='text', size='60')
 
 #content
   //- Textarea for the user to submit a new message
+  div What's happening?
   form(id='message-form', onsubmit='send(); return false;')
-    textarea(id='input', rows='3', cols='60')
+    textarea(id='input')
     input(type='submit', value='Send')
 
   #message-stack
@@ -20,4 +23,4 @@ script(src='/socket.io/socket.io.js')
 script(src='/javascripts/client.js')
 script
   var socket = io.connect();
-  socket.json.send({join: "#{title}"});
+  socket.json.send({join: "#{username}"});
