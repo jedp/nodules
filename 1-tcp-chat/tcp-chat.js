@@ -29,6 +29,7 @@ var net = require('net');
 
 var clients = [];
 var names = {};
+var i;
 
 // ### Functions ###
 //
@@ -37,7 +38,7 @@ var names = {};
 // declared.
 
 function tellAll(message) {
-  for (var i=0; i<clients.length; i++) {
+  for (i=0; i<clients.length; i++) {
     clients[i].write(message);
   }
 }
@@ -67,21 +68,26 @@ function tellAll(message) {
 
 var server = net.createServer(function(socket) {
 
+  // The function we are in now is a closure.  The following `socket_id`
+  // variable will be uniquely defined for each invocation of this function.
+
+  var socket_id = socket.remoteAddress + '/' + socket.remotePort;
+
 // #### Handlers ####
 //
 // The `socket` object responds to events.  You can register callbacks that
 // will be invoked for events like "connect", "data", "end", etc.  Use the
 // `socket.on` method to do this.
-// 
+//
 // The connect handler will be triggered when someone conects to our server.
 // Here we tell everyone in our room that someone has joined, and then adds the
 // connected `socket` to the list of people in our room.
 
   socket.on('connect', function() {
-    if (typeof names[socket.remoteAddress] === 'undefined') {
-      names[socket.remoteAddress] = socket.remoteAddress;
+    if (typeof names[socket_id] === 'undefined') {
+      names[socket_id] = socket_id;
     }
-    tellAll(names[socket.remoteAddress] + ' has joined the party\n');
+    tellAll(names[socket_id] + ' has joined the party\n');
     clients.push(socket);
   });
 
@@ -113,8 +119,8 @@ var server = net.createServer(function(socket) {
 // room when someone changes their name.
 
         case "nick":
-          var oldName = names[socket.remoteAddress];
-          names[socket.remoteAddress] = arg;
+          var oldName = names[socket_id];
+          names[socket_id] = arg;
           tellAll(oldName + ' is now ' + arg + '\n');
           break;
 
@@ -137,7 +143,7 @@ var server = net.createServer(function(socket) {
 // Our default action for messages is to broadcast them to the whole channel.
 
     } else {
-      tellAll(names[socket.remoteAddress] + ': ' + data);
+      tellAll(names[socket_id] + ': ' + data);
     }
   });
 
@@ -145,7 +151,7 @@ var server = net.createServer(function(socket) {
 // tells everyone the person has left.
 
   socket.on('end', function() {
-    var addr = socket.remoteAddress;
+    var addr = socket_id;
     var i = clients.indexOf(socket);
     clients.splice(i, 1);
     tellAll(names[addr] + '(' + addr + ') has left the building\n');
