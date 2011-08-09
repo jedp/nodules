@@ -3,18 +3,15 @@
 
 var redis = require('redis').createClient();
 var models = require('./models');
-var set = require('./utils').Set;
 var prefix = 'ublog.';
 
-(function() {
-
-
-  function process() {
-    console.log("waiting...");
-    redis.brpop(prefix+'messages', 0, function(err, msg) {
-      if (!err) {
-        console.log(msg);
+function process() {
+  console.log("waiting...");
+  redis.brpop(prefix+'messages', 0, function(err, msg) {
+    if (!err) {
+      try {
         var contents = JSON.parse(msg[1]);
+        console.log("Handling message from " + contents.author);
         
         // Before we do anything, save the new message
         var message = new models.Message({
@@ -23,22 +20,28 @@ var prefix = 'ublog.';
         });
         message.save();
 
-        // Get set of followers, including author 
-        var following = new Set([contents.author]);
-
         // ... send to inbox queue for application servers
-
-
+        
+      } catch (err) {
+        // on error, push the message back on the queue
+        // then crash
+        console.error(err);
+        console.log("Pushing message back: " + msg[1]);
+        redis.rpush(prefix+'messages', msg[1]);
+        throw(err);
       }
+    }
 
-      // when done, wait for more
-      process();
-    });
-  }
+    // when done, wait for more
+    process();
+  });
+}
 
-  // start waiting for messages to come in
+module.exports.process = process;
+
+if (!module.parent) {
+  console.log("ublog worker listening to redis @ %s:%d", redis.host, redis.port);
   process();
-
-})();
+};
 
 
