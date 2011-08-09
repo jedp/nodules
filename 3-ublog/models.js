@@ -13,20 +13,22 @@ var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
   username: {type: String, index: true},
-  following: [String]
+  following: [String],
+  followers: [String]
 });
-var User = mongoose.model('UserModel', UserSchema);
+var User = mongoose.model('User', UserSchema);
 
 // For a message, record the username who sent it, the message itself, and the
 // date.  We may eventually want to extract mentions and hashtags and index
 // them for faster retrieval.  Then again, mongo is fast.
 
 var MessageSchema = new Schema({
-  username: {type: String, index: true},
+  author: {type: String, index: true},
   message: String,
-  date: Date
+  date: {type: Date, default: Date.now},
+  favorites: [String]
 });
-var Message = mongoose.model('MessageModel', MessageSchema);
+var Message = mongoose.model('Message', MessageSchema);
 
 // Export `User` and `Message` models.
 

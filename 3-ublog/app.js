@@ -11,6 +11,9 @@ var ublog = require('./ublog');
 
 var app = module.exports = express.createServer();
 
+var sessionStore = new express.session.MemoryStore();
+var sessionKey = 'ublog.sid';
+
 // Configuration
 // -------------
 
@@ -25,7 +28,10 @@ app.configure(function(){
   // User session management to keep track of whether a 
   // client is logged in or not.
   app.use(express.cookieParser());
-  app.use(express.session({'secret': "Attack at dawn!"}));
+  app.use(express.session(
+      {'store': sessionStore,
+       'secret': "Attack at dawn!",
+       'key': sessionKey}));
 
   app.use(express.static(__dirname + '/public'));
   app.use(app.router);
@@ -42,17 +48,17 @@ app.configure('production', function(){
 // Routes
 // ------
 
-ublog.connect(app);
+// authentication middleware
 
-app.get('/', function(req, res){
-  if (req.session.auth) {
-    res.render('feed', {
-      username: req.session.username
-    });
+function loginRequired(req, res, next) {
+  if (req.session.username) {
+    next();
   } else {
-    res.render('login');
+    res.redirect('/login?next=' + req.url);
   }
-});
+};
+
+// login and authentication
 
 app.get('/login', function(req, res) {
   res.render('login');
@@ -60,9 +66,15 @@ app.get('/login', function(req, res) {
 
 app.post('/login', function(req, res) {
   // Put your authentication tests here
-  req.session.auth = true;
-  req.session.username = req.body.username;
-  res.redirect('/');
+  var username = req.body.username;
+  var password = req.body.password;
+
+  if (username && password) {
+    req.session.username = req.body.username;
+    res.redirect(req.query.next || '/');
+  } else {
+    res.redirect("back");
+  }
 });
 
 app.get('/logout', function(req, res) {
@@ -70,8 +82,18 @@ app.get('/logout', function(req, res) {
   res.render('logout');
 });
 
+// content routes
+
+app.get('/', loginRequired, function(req, res){
+  res.render('feed', {
+    username: req.session.username
+  });
+});
+
 if (!module.parent) {
   app.listen(3000);
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 }
+
+ublog.connect(app, sessionStore, sessionKey);
 
