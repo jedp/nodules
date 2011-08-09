@@ -3,8 +3,8 @@
  "author": "Jed Parsons (http://jedparsons.com)",
 
  "dependencies": {
-    "express": "2.4.1", 
-    "jade": ">= 0.0.1",
+    "express": ">=2.4.1", 
+    "jade": "",
     "socket.io": ">=0.7.0"
   }
 }
