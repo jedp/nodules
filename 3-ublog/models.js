@@ -18,6 +18,17 @@ var UserSchema = new Schema({
 });
 var User = mongoose.model('User', UserSchema);
 
+var ensureUser = exports.ensureUser = function(username, callback) {
+  // upsert user
+  User.update({username: username}, {}, {upsert: true}, function(err) {
+    if (typeof callback === 'function') {
+      callback(err);
+    }
+  });
+};
+
+
+
 // For a message, record the username who sent it, the message itself, and the
 // date.  We may eventually want to extract mentions and hashtags and index
 // them for faster retrieval.  Then again, mongo is fast.

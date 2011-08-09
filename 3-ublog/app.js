@@ -8,6 +8,7 @@
 
 var express = require('express');
 var ublog = require('./ublog');
+var models = require('./models');
 
 var app = module.exports = express.createServer();
 
@@ -70,6 +71,9 @@ app.post('/login', function(req, res) {
   var password = req.body.password;
 
   if (username && password) {
+    // make sure we have this user in the db
+    models.ensureUser(username);
+    
     req.session.username = req.body.username;
     res.redirect(req.query.next || '/');
   } else {
