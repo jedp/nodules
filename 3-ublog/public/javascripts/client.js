@@ -76,7 +76,7 @@ function show(data) {
   var message = document.createElement('div');
   message.setAttribute("class", "message");
 
-  message.innerHTML = '<strong>' + data.username + '</strong><div>' + data.message + '</div><time>' + data.date + '</time>';
+  message.innerHTML = '<strong>' + data.author + '</strong><div>' + data.message + '</div><time>' + data.date + '</time>';
 
   messages.insertBefore(message, messages.firstChild);
 }

@@ -23,4 +23,4 @@ script(src='/socket.io/socket.io.js')
 script(src='/javascripts/client.js')
 script
   var socket = io.connect();
-  socket.json.send({join: "#{username}"});
+  socket.json.send({join: true});

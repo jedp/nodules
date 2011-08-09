@@ -4,6 +4,7 @@
 var socket_io = require('socket.io');
 var models = require('./models');
 var redis = require('redis').createClient();
+var prefix = 'ublog.';
 var parseCookie = require('connect').utils.parseCookie;
 
 function connect(app, sessionStore, sessionKey) {
@@ -36,9 +37,6 @@ function connect(app, sessionStore, sessionKey) {
 
       // When someone joins, send the last 50 messages.
       if ('join' in data) {
-        console.log("join");
-        console.log(data);
-        username = data.join;
         models.Message
           .find()
           .sort('$natural', 'ascending')
@@ -55,7 +53,7 @@ function connect(app, sessionStore, sessionKey) {
       else if ('message' in data) {
         var message = {'author': username, 
                        'message': data.message};
-        console.log(message);
+        redis.lpush(prefix+'messages', JSON.stringify(message));
       }
 
       // Search for the 50 most recent messages matching the query.
